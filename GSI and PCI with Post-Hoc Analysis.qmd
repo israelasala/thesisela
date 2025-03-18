@@ -1,0 +1,82 @@
+---
+title: "ANOVA and Kruskal-Wallis Test for GSI and PCI with Post-Hoc Analysis"
+author: "Ela Jeen M. Gonesto"
+format: docx
+editor: visual
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(car)
+install.packages("multcomp")
+library(multcomp) # For Tukey HSD
+library(FSA) # For Dunn's test
+```
+
+## Load Data
+
+```{r}
+cots_data <- data.frame(
+  Total_Body_Weight = c(860, 820, 680, 700, 300, 400, 620, 660, 240, 320, 280, 680, 760, 410, 730, 880, 560, 780, 940, 440, 570, 500, 360, 580, 400, 500, 440, 340, 680, 330, 490, 560, 440, 420, 1140, 1070, 520, 440, 780),
+  Diameter = c(32, 33, 27, 30, 23, 25, 27, 26, 22, 25, 21, 26, 34, 25, 32, 34, 28, 32, 32, 25, 28, 25, 24, 26, 22, 29, 27, 21, 32, 23, 25, 27, 25, 24, 40, 36, 28, 29.5, 31),
+  Number_of_Arms = c(15, 13, 13, 14, 14, 10, 14, 14, 14, 15, 14, 15, 13, 13, 14, 14, 14, 14, 15, 13, 14, 12, 15, 14, 15, 12, 14, 15, 14, 15, 13, 15, 13, 14, 13, 15, 12, 15, 15),
+  PCI = c(0.4477, 0.4696, 0.5663, 0.5501, 1.2835, 0.9626, 0.6211, 0.5834, 1.6044, 1.2033, 1.3752, 0.5663, 0.5067, 0.9392, 0.5275, 0.4376, 0.6876, 0.4937, 0.4096, 0.8751, 0.6755, 0.7701, 1.0696, 0.6639, 0.9626, 0.7701, 0.8751, 1.1325, 0.5663, 1.1668, 0.7858, 0.6876, 0.8751, 0.9168, 0.3378, 0.3599, 0.7405, 0.8751, 0.4937),
+  GSI = c(0.1131, 0.1186, 0.1430, 0.1389, 0.3242, 0.2431, 0.1569, 0.1473, 0.4052, 0.3039, 0.3473, 0.1430, 0.1280, 0.2372, 0.1332, 0.1105, 0.1737, 0.1247, 0.1035, 0.2210, 0.1706, 0.1945, 0.2701, 0.1677, 0.2431, 0.1945, 0.2210, 0.2860, 0.1430, 0.2947, 0.1985, 0.1737, 0.2210, 0.2315, 0.0853, 0.0909, 0.1870, 0.2210, 0.1247)
+)
+
+cots_data <- cots_data %>%
+  mutate(Size_Class = case_when(
+    Diameter < 10 ~ "<1 year (<10 cm)",
+    Diameter >= 10 & Diameter <= 15 ~ "1-2 years (10-15 cm)",
+    Diameter >= 16 & Diameter <= 25 ~ "2-3 years (16-25 cm)",
+    Diameter >= 26 & Diameter <= 40 ~ "4-5 years (26-40 cm)",
+    Diameter > 40 ~ ">5 years (>40 cm)"
+  ))
+```
+
+## Standard One-Way ANOVA
+
+```{r}
+gsi_anova <- aov(GSI ~ Size_Class, data = cots_data)
+summary(gsi_anova)
+
+pci_anova <- aov(PCI ~ Size_Class, data = cots_data)
+summary(pci_anova)
+```
+
+## Post-Hoc Analysis: Tukey's HSD for ANOVA
+
+```{r}
+TukeyHSD(gsi_anova)
+TukeyHSD(pci_anova)
+```
+
+## Kruskal-Wallis Test (Non-Parametric Alternative)
+
+```{r}
+kruskal.test(GSI ~ Size_Class, data = cots_data)
+kruskal.test(PCI ~ Size_Class, data = cots_data)
+```
+
+## Post-Hoc Analysis: Dunn’s Test for Kruskal-Wallis
+
+```{r}
+dunnTest(GSI ~ Size_Class, data = cots_data, method = "bonferroni")
+dunnTest(PCI ~ Size_Class, data = cots_data, method = "bonferroni")
+```
+
+## Boxplots for Visualization
+
+```{r}
+ggplot(cots_data, aes(x = Size_Class, y = GSI, fill = Size_Class)) +
+  geom_boxplot() +
+  labs(title = "GSI Across Size Classes", x = "Size Class", y = "Gonadosomatic Index (GSI)") +
+  theme_minimal()
+
+
+ggplot(cots_data, aes(x = Size_Class, y = PCI, fill = Size_Class)) +
+  geom_boxplot() +
+  labs(title = "PCI Across Size Classes", x = "Size Class", y = "Physiological Condition Index (PCI)") +
+  theme_minimal()
+```
