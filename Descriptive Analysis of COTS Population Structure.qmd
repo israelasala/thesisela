@@ -1,0 +1,73 @@
+---
+title: "Descriptive Analysis of COTS Population Structure"
+author: "Ela Jeen M. Gonesto"
+format: docx
+editor: visual
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Load Data
+
+```{r}
+cots_data <- data.frame(
+  Total_Body_Weight = c(860, 820, 680, 700, 300, 400, 620, 660, 240, 320, 280, 680, 760, 410, 730, 880, 560, 780, 940, 440, 570, 500, 360, 580, 400, 500, 440, 340, 680, 330, 490, 560, 440, 420, 1140, 1070, 520, 440, 780),
+  Diameter = c(32, 33, 27, 30, 23, 25, 27, 26, 22, 25, 21, 26, 34, 25, 32, 34, 28, 32, 32, 25, 28, 25, 24, 26, 22, 29, 27, 21, 32, 23, 25, 27, 25, 24, 40, 36, 28, 29.5, 31),
+  Number_of_Arms = c(15, 13, 13, 14, 14, 10, 14, 14, 14, 15, 14, 15, 13, 13, 14, 14, 14, 14, 15, 13, 14, 12, 15, 14, 15, 12, 14, 15, 14, 15, 13, 15, 13, 14, 13, 15, 12, 15, 15)
+)
+```
+
+## Summary Statistics
+
+```{r}
+summary_stats <- cots_data %>%
+  summarise(
+    Mean_Weight = mean(Total_Body_Weight),
+    Median_Weight = median(Total_Body_Weight),
+    SD_Weight = sd(Total_Body_Weight),
+    Min_Weight = min(Total_Body_Weight),
+    Max_Weight = max(Total_Body_Weight),
+    
+    Mean_Diameter = mean(Diameter),
+    Median_Diameter = median(Diameter),
+    SD_Diameter = sd(Diameter),
+    Min_Diameter = min(Diameter),
+    Max_Diameter = max(Diameter),
+    
+    Mode_Arms = as.numeric(names(sort(table(Number_of_Arms), decreasing = TRUE)[1]))
+  )
+print(summary_stats)
+```
+
+## Distribution Analysis
+
+```{r}
+hist(cots_data$Total_Body_Weight, main="Distribution of Total Body Weight", xlab="Weight (g)", col="lightblue", breaks=10)
+hist(cots_data$Diameter, main="Distribution of Diameter", xlab="Diameter (cm)", col="lightgreen", breaks=10)
+```
+
+## Outlier Detection
+
+```{r}
+boxplot(cots_data$Total_Body_Weight, main="Boxplot of Total Body Weight", col="lightblue")
+boxplot(cots_data$Diameter, main="Boxplot of Diameter", col="lightgreen")
+```
+
+## Correlation Analysis
+
+```{r}
+cor_matrix <- cor(cots_data[, c("Total_Body_Weight", "Diameter", "Number_of_Arms")])
+print(cor_matrix)
+```
+
+## Scatterplot
+
+```{r}
+ggplot(cots_data, aes(x = Diameter, y = Total_Body_Weight)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Scatterplot of Diameter vs. Total Body Weight", x = "Diameter (cm)", y = "Total Body Weight (g)")
+```
