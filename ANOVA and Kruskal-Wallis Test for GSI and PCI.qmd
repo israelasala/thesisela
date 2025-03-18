@@ -1,9 +1,10 @@
 ---
-title: "Welch's ANOVA and Kruskal-Wallis Test for GSIand PCI"
+title: "ANOVA and Kruskal-Wallis Test for GSI and PCI"
 author: "Ela Jeen M. Gonesto"
 format: docx
 editor: visual
 ---
+
 ```{r setup, include=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -42,10 +43,13 @@ leveneTest(GSI ~ Size_Class, data = cots_data)
 leveneTest(PCI ~ Size_Class, data = cots_data)
 ```
 
-## Welch's ANOVA (Handles Unequal Variances)
+## Standard One-Way ANOVA
 ```{r}
-oneway.test(GSI ~ Size_Class, data = cots_data)
-oneway.test(PCI ~ Size_Class, data = cots_data)
+gsi_anova <- aov(GSI ~ Size_Class, data = cots_data)
+summary(gsi_anova)
+
+pci_anova <- aov(PCI ~ Size_Class, data = cots_data)
+summary(pci_anova)
 ```
 
 ## Kruskal-Wallis Test (Non-Parametric Alternative)
@@ -67,6 +71,8 @@ ggplot(cots_data, aes(x = Size_Class, y = PCI, fill = Size_Class)) +
   labs(title = "PCI Across Size Classes", x = "Size Class", y = "Physiological Condition Index (PCI)") +
   theme_minimal()
 ```
+
+
 
 
 
